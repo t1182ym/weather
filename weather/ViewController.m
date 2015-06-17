@@ -8,6 +8,9 @@
 
 #import "ViewController.h"
 #import <LBBlurredImage/UIImageView+LBBlurredImage.h>
+#import "WXManager.h"
+#import "WXClient.h"
+#import <ReactiveCocoa/ReactiveCocoa.h>
 
 @interface ViewController ()
 
@@ -107,7 +110,22 @@
     iconView.backgroundColor = [UIColor clearColor];
     [header addSubview:iconView];
     
-    
+    [[WXManager sharedManager] findCurrentLocation];
+    NSLog(@"通ってる？1");
+    // 1
+    [[RACObserve([WXManager sharedManager], currentCondition)
+      // 2
+      deliverOn:RACScheduler.mainThreadScheduler]
+     subscribeNext:^(WXCondition *newCondition) {
+         // 3
+         temperatureLabel.text = [NSString stringWithFormat:@"%.0f°",newCondition.temperature.floatValue];
+         conditionsLabel.text = [newCondition.condition capitalizedString];
+         cityLabel.text = [newCondition.locationName capitalizedString];
+         
+         // 4
+         iconView.image = [UIImage imageNamed:[newCondition imageName]];
+     }];
+
 }
 
 - (UIStatusBarStyle)preferredStatusBarStyle {

@@ -11,6 +11,7 @@
 @implementation WXCondition
 
 + (NSDictionary *)imageMap {
+    
     static NSDictionary *_imageMap = nil;
     if(! _imageMap) {
         
@@ -44,6 +45,7 @@
 }
 
 + (NSDictionary *)JSONKeyPathsByPropertyKey {
+    NSLog(@"通ってる？1");
     return @{
              @"date": @"dt",
              @"locationName": @"name",
@@ -59,14 +61,34 @@
              @"windBearing": @"wind.deg",
              @"windSpeed": @"wind.speed"
              };
+    
+}
+
++ (NSValueTransformer *)dateJSONTransformer {
+    NSLog(@"dateJSONTransformer");
+    return [MTLValueTransformer transformerUsingForwardBlock:^(NSString *str, BOOL *success, NSError **error){
+        return [NSDate dateWithTimeIntervalSince1970:str.floatValue];
+    } reverseBlock:^(NSDate *date, BOOL *success, NSError **error) {
+        return [NSString stringWithFormat:@"%f", [date timeIntervalSince1970]];
+    }];
+}
+
+// 2
++ (NSValueTransformer *)sunriseJSONTransformer {
+    return [self dateJSONTransformer];
+}
+
++ (NSValueTransformer *)sunsetJSONTransformer {
+    return [self dateJSONTransformer];
 }
 
 #define MPS_TO_MPH 2.23694f
-+ (NSValueTransformer *)dateJSONTransformer {
++ (NSValueTransformer *)windSpeedJSONTransformer {
     
-    return [MTLValueTransformer reversibleTransformerWithForwardBlock:^(NSNumber *num){
+    
+    return [MTLValueTransformer transformerUsingForwardBlock:^(NSNumber *num, BOOL *success, NSError **error){
         return @(num.floatValue*MPS_TO_MPH);
-    } reverseBlock:^(NSNumber *speed) {
+    } reverseBlock:^(NSNumber *speed, BOOL *success, NSError **error) {
         return @(speed.floatValue/MPS_TO_MPH);
         
     }];

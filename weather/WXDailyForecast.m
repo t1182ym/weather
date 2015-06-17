@@ -11,6 +11,7 @@
 @implementation WXDailyForecast
 
 + (NSDictionary *)JSONKeyPathsByPropertyKey {
+    NSLog(@"通ってる？6");
     // 1
     NSMutableDictionary *paths = [[super JSONKeyPathsByPropertyKey] mutableCopy];
     // 2
@@ -18,6 +19,7 @@
     paths[@"tempLow"] = @"temp.min";
     // 3
     return paths;
+    
 }
 
 @end
